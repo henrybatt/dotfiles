@@ -1,0 +1,21 @@
+# Default stow-ignore
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Dotfile specific ignores
+install.sh
+\scripts
+\backups
