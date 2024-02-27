@@ -16,6 +16,7 @@ _darcs
 ^/COPYING
 
 # Dotfile specific ignores
+\.gitmodules
 install.sh
-\scripts
-\backups
+scripts
+backups
