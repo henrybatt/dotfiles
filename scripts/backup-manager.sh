@@ -10,10 +10,18 @@ transfer_dir() {
 	printf "$message $dirname to $target_dir from $source_dir\n" >> "$log_output"
 
 	if [ -d "$target_dir/$dirname" ]; then 
-		rm -rf "$target_dir/$dirname"
-	fi 
+		rm -rif "$target_dir/$dirname"
+	fi
+
 	mkdir -p "$target_dir/$dirname"
+
+	if [ -L "$source_dir/$dirname" ]; then
+		cp -r "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+		unlink "$source_dir/$dirname"
+	fi
+
 	mv -f "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+
 }
 
 # Backup a directory from $target_path into $backup_path
@@ -50,6 +58,11 @@ backup_revert() {
 
 # Backup management controller using installer flags
 backup_controller_run() {
+	
+	if [ -L "$target_path_default/.config" ]; then
+		unlink ~/.config
+	fi
+
 	if [ "$undo_backup" = true ]; then
 		backup_revert; exit 0
 	elif [ "$no_backup" = true ]; then
