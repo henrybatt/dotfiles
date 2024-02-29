@@ -9,20 +9,21 @@ transfer_dir() {
 
 	printf "$message $dirname to $target_dir from $source_dir\n" >> "$log_output"
 
+	# Cleanup target dir
 	if [ -d "$target_dir/$dirname" ]; then 
 		rm -rif "$target_dir/$dirname"
 	fi
-
 	mkdir -p "$target_dir/$dirname"
 
+	# Move files into backup (copies linked files before breaking links)
 	if [ -L "$source_dir/$dirname" ]; then
-		cp -r "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+		cp -Lr "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
 		unlink "$source_dir/$dirname"
-	fi
-
-	mv -f "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
-
+	else
+		mv -f "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+	fi 
 }
+
 
 # Backup a directory from $target_path into $backup_path
 backup_dir() {
@@ -30,11 +31,13 @@ backup_dir() {
 	transfer_dir "$dirname" "$target_path" "$backup_path" "Backing up"
 }
 
+
 # Revert a directory backup from $backup_path back into $target_path
 revert_dir_backup() {
 	local dirname="$1"	
 	transfer_dir "$dirname" "$backup_path" "$target_path" "Reverting backup: "
 }
+
 
 # Begin a full .config wide backup from $target_path into $backup_path
 backup_begin() {
@@ -46,27 +49,38 @@ backup_begin() {
 	true
 }
 
+
+# Removes all empty directories in given directory (including self) 
+empty_dir_cleanup() {
+	local dirname="$1"
+	printf "Cleaning up $dirname" >> "$log_output"
+	find "$dirname" -type d -empty -delete
+}
+
+
 # Do a full backup reversion from $backup_path back into $target_path
 backup_revert() {
 	printf "Reverting backup of files\n" >> "$log_output"
-	for file in .config/*; do
+	for file in "$backup_path/.config"/*; do
 		# Revert backups into target_path if they are tracked
-		[ -d "$file" ] && [ -d "$backup_path/$file" ] && revert_dir_backup "$file"
+		local config_name=${file#"$backup_path/"} # Strips backup path from the file
+		[ -d "$file" ] && [ -d "$config_name" ] && revert_dir_backup "$config_name"
 	done
+	empty_dir_cleanup "$backup_path"
 	true
 }
 
-# Backup management controller using installer flags
-backup_controller_run() {
-	
-	if [ -L "$target_path_default/.config" ]; then
-		unlink ~/.config
-	fi
 
-	if [ "$undo_backup" = true ]; then
-		backup_revert; exit 0
-	elif [ "$no_backup" = true ]; then
+# Backup management controller (3 modes based on args)
+# Regular backup, undo backup, and skip backup
+backup_controller_run() {
+	local undo="$1"
+	local skip="$2"
+
+	if [ "$skip" = true ]; then
 		printf "Skipping Backup\n" >> "$log_output"
+	elif [ "$undo" = true ]; then
+		backup_revert; exit 0
 	else 
 		backup_begin
 	fi
