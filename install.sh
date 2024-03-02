@@ -85,7 +85,9 @@ if [ "$install_disable" != true ]; then
 
 	# Link our dotfiles/.config into new .config
 	for file in .config/*; do
-		unlink "$target_path/$file"
+		if [ -L "$target_path/$file" ]; then
+			unlink "$target_path/$file"
+		fi
 		ln -sf "$PWD/$file" "$target_path/$file"
 	done
 else 
