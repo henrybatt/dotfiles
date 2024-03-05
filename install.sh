@@ -54,6 +54,9 @@ else
 	log_output=${verbose_file-"/dev/null"}
 fi
 
+# Ensure all submodules are cloned and updated
+git submodule init && git submodule update
+
 
 # Backup files based on flags
 source scripts/backup-manager.sh
