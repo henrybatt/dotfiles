@@ -13,14 +13,17 @@ transfer_dir() {
 	if [ -d "$target_dir/$dirname" ]; then 
 		rm -rif "$target_dir/$dirname"
 	fi
-	mkdir -p "$target_dir/$dirname"
+
+	local parent_path="$(dirname $dirname)"
+
+	mkdir -p "$target_dir/$parent_path"
 
 	# Move files into backup (copies linked files before breaking links)
 	if [ -L "$source_dir/$dirname" ]; then
-		cp -Lr "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+		cp -Lr "$source_dir/$dirname" "$target_dir/$parent_path"
 		unlink "$source_dir/$dirname"
 	else
-		mv -f "$source_dir/$dirname" "$target_dir/$(dirname $dirname)"
+		mv -f "$source_dir/$dirname" "$target_dir/$parent_path"
 	fi 
 }
 
@@ -44,7 +47,7 @@ backup_begin() {
 	printf "Backing up files\n" >> "$log_output"
 	for file in .config/*; do
 		# Back up dotfile if it already exists and is to be replaced
-		[ -d "$file" ] && [ -d "$target_path/$file" ] && backup_dir "$file"
+		[ -e "$file" ] && [ -e "$target_path/$file" ] && backup_dir "$file"
 	done
 	true
 }
@@ -64,7 +67,7 @@ backup_revert() {
 	for file in "$backup_path/.config"/*; do
 		# Revert backups into target_path if they are tracked
 		local config_name=${file#"$backup_path/"} # Strips backup path from the file
-		[ -d "$file" ] && [ -d "$config_name" ] && revert_dir_backup "$config_name"
+		[ -e "$file" ] && [ -e "$config_name" ] && revert_dir_backup "$config_name"
 	done
 	empty_dir_cleanup "$backup_path"
 	true

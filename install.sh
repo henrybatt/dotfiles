@@ -18,7 +18,7 @@ exit 0
 
 
 # Get -flags
-while getopts hvnsrit:b:l: flag; do
+while getopts hvnsurit:b:l: flag; do
 	case "$flag" in
 		h) display_help ;;			# Display the help message
 		v) verbose=true ;;			# Enable verbose mode
