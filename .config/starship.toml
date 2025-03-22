@@ -2,6 +2,8 @@ add_newline = false
 
 palette = "catppuccin_mocha"
 
+command_timeout = 1000
+
 # Use nerd font symbols
 [aws]
 symbol = "  "
