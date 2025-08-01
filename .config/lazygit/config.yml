@@ -1,0 +1,9 @@
+customCommands:
+  - key: "<c-y>"
+    description: "Create Patch from Commit"
+    context: "commits, subCommits, commitFiles"
+    command: "git diff {{.SelectedCommit.Sha}}^ {{.SelectedCommit.Sha}} > {{.Form.ResultFile}}"
+    prompts:
+      - type: "input"
+        title: "File Name:"
+        key: "ResultFile"
