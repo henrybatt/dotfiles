@@ -4,8 +4,8 @@ local config = wezterm.config_builder()
 
 local helpers = require("helpers")
 
-config.font = wezterm.font 'Hack Nerd Font'
-config.font_size = 12.0
+config.font = wezterm.font "Hack Nerd Font"
+config.font_size = 15.0
 
 config.color_scheme = helpers.scheme_for_appearance(wezterm.gui.get_appearance())
 
